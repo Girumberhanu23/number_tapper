@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -11,9 +12,11 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
-  double positionX = 100;
-  double positionY = 150;
+  double positionX = 0;
+  double positionY = 0;
   Random random = Random();
+  Timer? timer;
+  int timeRemaining = 30;
 
   void changeButtonPosition() {
     double width = MediaQuery.of(context).size.width;
@@ -21,6 +24,20 @@ class _GameScreenState extends State<GameScreen> {
     setState(() {
       positionX = random.nextDouble() * (width - 70);
       positionY = random.nextDouble() * (height - 140);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        if (timeRemaining > 0) {
+          timeRemaining--;
+        } else {
+          timer.cancel();
+        }
+      });
     });
   }
 
@@ -45,7 +62,7 @@ class _GameScreenState extends State<GameScreen> {
                   children: [
                 TextSpan(text: "Time: "),
                 TextSpan(
-                    text: "00\":38'",
+                    text: "00\":${timeRemaining}'",
                     style: TextStyle(
                         color: blue, fontSize: 22, fontWeight: FontWeight.w600))
               ])),
