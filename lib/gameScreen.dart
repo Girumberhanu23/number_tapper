@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:number_tapper/core/constants.dart';
 
@@ -9,6 +11,19 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
+  double positionX = 100;
+  double positionY = 150;
+  Random random = Random();
+
+  void changeButtonPosition() {
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+    setState(() {
+      positionX = random.nextDouble() * (width - 70);
+      positionY = random.nextDouble() * (height - 140);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,8 +58,10 @@ class _GameScreenState extends State<GameScreen> {
       body: Stack(
         children: [
           Positioned(
+            left: positionX,
+            top: positionY,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: changeButtonPosition,
               child: Text(
                 "0",
                 style: TextStyle(color: white, fontSize: 16),
