@@ -17,6 +17,8 @@ class _GameScreenState extends State<GameScreen> {
   Random random = Random();
   Timer? timer;
   int timeRemaining = 30;
+  int score = 0;
+  int highScore = 0;
 
   void changeButtonPosition() {
     double width = MediaQuery.of(context).size.width;
@@ -27,18 +29,84 @@ class _GameScreenState extends State<GameScreen> {
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    timer = Timer.periodic(Duration(seconds: 1), (timer) {
+  void startGame() {
+    setState(() {
+      positionX = 0;
+      positionY = 0;
+      timeRemaining = 30;
+      score = 0;
+    });
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         if (timeRemaining > 0) {
           timeRemaining--;
         } else {
           timer.cancel();
+          endGame();
         }
       });
     });
+  }
+
+  void endGame() {
+    if (score > highScore) {
+      setState(() {
+        highScore = score;
+      });
+    }
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Game Over'),
+            content: RichText(
+                text: TextSpan(
+                    style: TextStyle(color: black, fontSize: 20),
+                    children: [
+                  TextSpan(text: "Score: "),
+                  TextSpan(
+                      text: score.toString(),
+                      style: TextStyle(
+                          color: blue,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500)),
+                  TextSpan(text: "\nHighScore: "),
+                  TextSpan(
+                      text: highScore.toString(),
+                      style: TextStyle(
+                          color: blue,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500))
+                ])),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  startGame();
+                },
+                child: Text(
+                  'Play Again',
+                  style: TextStyle(color: white),
+                ),
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(blue)),
+              )
+            ],
+          );
+        });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    startGame();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    timer?.cancel();
   }
 
   @override
@@ -51,7 +119,7 @@ class _GameScreenState extends State<GameScreen> {
                 children: [
               TextSpan(text: "Score: "),
               TextSpan(
-                  text: "28",
+                  text: score.toString(),
                   style: TextStyle(
                       color: blue, fontSize: 26, fontWeight: FontWeight.w800))
             ])),
@@ -78,10 +146,16 @@ class _GameScreenState extends State<GameScreen> {
             left: positionX,
             top: positionY,
             child: ElevatedButton(
-              onPressed: changeButtonPosition,
+              onPressed: () {
+                changeButtonPosition();
+                setState(() {
+                  score++;
+                });
+              },
               child: Text(
-                "0",
-                style: TextStyle(color: white, fontSize: 16),
+                (score + 1).toString(),
+                style: TextStyle(
+                    color: white, fontSize: 18, fontWeight: FontWeight.w600),
               ),
               style: ButtonStyle(
                   padding: MaterialStateProperty.all(const EdgeInsets.all(25)),
